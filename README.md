@@ -1,4 +1,6 @@
+<img width="1920" height="1080" alt="data_scale_banner" src="https://github.com/user-attachments/assets/59fa9fd5-2a40-4710-a418-b0490de946d7" />
 # Data Scale
+
 ## Introduction
 Data Scale offers a quick way to inspect the size of selected IDs such as objects, textures, shaders, etc. Whether it's to help artists optimize their work, or to show new users how additions can impact the resulting file, it sure is interesting to see what makes up for size in a .blend file.
 
