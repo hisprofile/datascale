@@ -1,4 +1,5 @@
-<img width="1920" height="1080" alt="data_scale_banner" src="https://github.com/user-attachments/assets/59fa9fd5-2a40-4710-a418-b0490de946d7" />
+<img width="1920" height="1080" alt="data_scale_banner" src="https://github.com/user-attachments/assets/59fa9fd5-2a40-4710-a418-b0490de946d7" />  
+
 # Data Scale
 
 ## Introduction
