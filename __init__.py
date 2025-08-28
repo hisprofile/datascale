@@ -248,7 +248,7 @@ class DATASCALE_MT_Menu(Menu):
         layout.operator('datascale.export')
 
 def menu_func(self, context):
-    if not getattr(context, 'property', None): return # i cannot get it to show at the same level as "Mark as asset." 
+    if (not getattr(context, 'property', None)) and (context.area.type == 'PROPERTIES'): return # i cannot get it to show at the same level as "Mark as asset." 
     # according to this issue, https://projects.blender.org/blender/blender/issues/126006
     # the "Mark as asset" operator shows when bpy.context.id can be accessed. this does not seem to exist in Python :(
     self.layout.separator()
