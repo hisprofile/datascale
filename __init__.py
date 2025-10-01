@@ -2,12 +2,12 @@ bl_info = {
     "name" : 'Data Scale' ,
     "description" : "Quickly inspect the total size of datablocks",
     "author" : "hisanimations",
-    "version" : (1, 0, 0),
+    "version" : (1, 0, 2),
     "blender" : (3, 0, 0),
-    "location" : "View3d > Spawner",
+    "location" : "Outliner > Context Menu > Data Scale",
     "support" : "COMMUNITY",
-    "category" : "Assets",
-    "doc_url": "https://github.com/hisprofile/OptiPloy"
+    "category" : "Import-Export",
+    "doc_url": "https://github.com/hisprofile/datascale"
 }
 
 import bpy
@@ -21,22 +21,13 @@ TEMP_FILE = os.path.join(
     'temp.blend'
 )
 
-def inherits_from(a, b):
-    if isinstance(b, tuple):
-        try:
-            for i in b:
-                if issubclass(a, i): return True
-            return False
-        except TypeError:
-            return False
-    try:
-        return issubclass(a, b)
-    except TypeError:
-        return False
+floating_id: bpy.types.ID = None
 
 def return_ids(context):
     if context.area.type in {'OUTLINER', 'VIEW_3D'}:
         return context.selected_ids
+    elif getattr(context, 'id', None):
+        return context.id
     elif context.area.type == 'PROPERTIES':
         space = context.space_data
         space_context = space.context
@@ -55,9 +46,9 @@ def return_ids(context):
                 return context.world
             case 'COLLECTION':
                 return context.collection
-    elif context.area.type == 'TOPBAR':
-            return context.selected_objects
-    return None
+            case 'PARTICLES':
+                return context.particle_settings
+    return floating_id
 
 def return_ids_set(context: bpy.types.Context, poll=False) -> set:
     gatherings = set()
@@ -104,7 +95,6 @@ class datascale_OT_weigh(Operator):
 
     def execute(self, context):
         props = context.preferences.addons[__package__].preferences
-        print(props)
         gatherings = return_ids_set(context)
         if not gatherings:
             return {'CANCELLED'}
@@ -188,10 +178,7 @@ class datascale_OT_export(Operator):
         return False
     
     def execute(self, context):
-        print(dir(context))
-        print(context.area.type)
         default_scene = None
-        #return {'FINISHED'}
         ids = return_ids_set(context)
         if not ids:
              return {'CANCELLED'}
@@ -230,7 +217,7 @@ class datascale_OT_export(Operator):
         bpy.data.libraries.write(self.filepath, ids, path_remap=self.path_remap, fake_user=self.fake_user, compress=self.compress)
         
         if default_scene:
-             bpy.data.scenes.remove(default_scene)
+            bpy.data.scenes.remove(default_scene)
         
         filesize = format_size(os.path.getsize(self.filepath))
         self.report({'INFO'}, f'Export successful with a size of {filesize}')
@@ -248,9 +235,15 @@ class DATASCALE_MT_Menu(Menu):
         layout.operator('datascale.export')
 
 def menu_func(self, context):
-    if (not getattr(context, 'property', None)) and (context.area.type == 'PROPERTIES'): return # i cannot get it to show at the same level as "Mark as asset." 
+    global floating_id
+    if not hasattr(context, 'id'): return
+
+    floating_id = context.id
+    #if (not getattr(context, 'property', None)) and (context.area.type == 'PROPERTIES'): return # i cannot get it to show at the same level as "Mark as asset." 
     # according to this issue, https://projects.blender.org/blender/blender/issues/126006
     # the "Mark as asset" operator shows when bpy.context.id can be accessed. this does not seem to exist in Python :(
+    # it does exist, but not in the context i need it to
+    
     self.layout.separator()
     self.layout.menu('DATASCALE_MT_Menu')
 
@@ -260,10 +253,6 @@ def export_menu(self, context):
 def object_menu(self, context):
     self.layout.separator()
     self.layout.operator('datascale.weigh')
-
-classes = [value for value in vars().values()
-           if (inherits_from(value, (Operator, AddonPreferences, Menu)))
-           and (not value in {Operator, AddonPreferences, Menu})]
 
 classes = [
     datascale_prefs,

@@ -1,7 +1,7 @@
 schema_version = "1.0.0"
 
-id = "Data Scale"
-version = "1.0.0"
+id = "data_scale"
+version = "1.0.2"
 name = "Data Scale"
 tagline = "Quickly inspect the size of datablocks"
 maintainer = "hisanimations <hisprofile029@gmail.com>"
